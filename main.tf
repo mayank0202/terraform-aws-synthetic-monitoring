@@ -77,7 +77,7 @@ resource "aws_synthetics_canary" "dynamic_canaries_with_vpc" {
   for_each = var.canaries_with_vpc
 
   name                     = each.value.name
-  artifact_s3_location     = each.value.artifact_s3_location
+  artifact_s3_location     = "s3://${module.s3_bucket.bucket_id}/"
   execution_role_arn       = data.aws_iam_role.execution_role.arn
   handler                  = each.value.handler
   zip_file                 = each.value.zip_file
@@ -100,7 +100,7 @@ resource "aws_synthetics_canary" "dynamic_canaries_with_vpc" {
     environment_variables = each.value.environment_variables
   }
 
-  # depends_on = [module.s3-bucket]
+  depends_on = [module.s3_bucket]
   tags = var.tags
 }
 
@@ -124,4 +124,33 @@ resource "aws_cloudwatch_metric_alarm" "canary_in_vpc_alarms" {
   alarm_actions     = [aws_sns_topic.alarm.arn]
   alarm_description = "Canary is down: ${each.value.name}"
   tags              = var.tags
+}
+
+////////////////// s3 ////////////////////////
+
+module "s3_bucket" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "4.2.0"
+
+  # for_each                      = { for x in var.s3_buckets : x.bucket_name => x }
+  lifecycle_configuration_rules = var.lifecycle_configuration_rules
+  bucket_name                   = var.bucket_name
+  bucket_key_enabled            = var.bucket_key_enabled
+  allowed_bucket_actions        = var.allowed_bucket_actions
+  user_enabled                  = var.user_enabled
+  block_public_acls             = var.block_public_acls
+  block_public_policy           = var.block_public_policy
+  # ignore_public_acls            = var.ignore_public_acls
+  restrict_public_buckets       = var.restrict_public_buckets
+  acl                           = var.acl
+  force_destroy                 = var.force_destroy
+  versioning_enabled            = var.versioning_enabled
+  allow_encrypted_uploads_only  = var.allow_encrypted_uploads_only
+  access_key_enabled            = var.access_key_enabled
+  # website_configuration         = var.website_configuration
+  cors_configuration            = var.cors_configuration
+  sse_algorithm                 = var.sse_algorithm
+  kms_master_key_arn            = module.kms.key_arn
+
+  tags = var.tags
 }

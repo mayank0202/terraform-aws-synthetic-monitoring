@@ -96,3 +96,185 @@ variable "tags" {
   description = "Tags to apply to the canary"
   type        = map(string)
 }
+################################################################################
+## S3
+################################################################################
+
+variable "allow_encrypted_uploads_only" {
+  type        = bool
+  default     = false
+  description = "Set to `true` to prevent uploads of unencrypted objects to S3 bucket"
+}
+
+variable "user_enabled" {
+  type        = bool
+  default     = false
+  description = "Set to `true` to create an IAM user with permission to access the bucket"
+}
+variable "bucket_name" {
+  type        = string
+  description = ""
+}
+variable "bucket_key_enabled" {
+  type        = bool
+  description = ""
+  default = false
+}
+variable "allowed_bucket_actions" {
+  type = list(string)
+  default = []
+  description = ""
+}
+variable "acl" {
+  type = string
+  default = "private"
+  description = ""
+}
+variable "force_destroy" {
+  type = bool
+  default = true
+  description = ""
+}
+variable "versioning_enabled" {
+  type = bool
+  default = false
+  description = ""
+}
+variable "block_public_acls" {
+  type = bool
+  default = false
+  description = ""
+}
+variable "block_public_policy" {
+  type = bool
+  default = false
+  description = ""
+}
+variable "restrict_public_buckets" {
+  type = bool
+  default = false
+  description = ""
+}
+variable "cors_configuration" {
+  type = list(object({
+    allowed_headers = list(string)
+      allowed_methods = list(string)
+      allowed_origins = list(string)
+      expose_headers  = list(string)
+      max_age_seconds = number
+  }))
+  default = []
+  description = ""
+}
+variable "lifecycle_configuration_rules" {
+  type = list(object({
+    abort_incomplete_multipart_upload_days = number
+      enabled                                = bool
+      expiration = object({
+        days                         = number
+        expired_object_delete_marker = bool
+      })
+      filter_and = object({})
+      id         = string
+      noncurrent_version_expiration = object({
+        newer_noncurrent_versions = number
+        noncurrent_days           = number
+      })
+      noncurrent_version_transition = list(object({}))
+      transition = list(object({
+        days          = number
+        storage_class = string
+      }))
+  }))
+  default = [ {
+    
+      
+        abort_incomplete_multipart_upload_days = 1
+        enabled                                = true
+        expiration = {
+          days                         = null
+          expired_object_delete_marker = null
+        }
+
+        # filter
+        filter_and = {}
+        id         = "delete after 365 days"
+        noncurrent_version_expiration = {
+          newer_noncurrent_versions = 1
+          noncurrent_days           = 1
+        }
+        noncurrent_version_transition = []
+        transition                    = []
+    
+  } ]
+}
+variable "access_key_enabled" {
+  type = bool
+  default = true
+}
+# variable "s3_buckets" {
+#   type = list(object({
+  
+    
+#     website_configuration = list(object({
+#       index_document = string
+#       error_document = string
+#       routing_rules = list(object({
+#         condition = object({
+#           http_error_code_returned_equals = string
+#           key_prefix_equals               = string
+#         })
+#         redirect = object({
+#           host_name               = string
+#           http_redirect_code      = string
+#           protocol                = string
+#           replace_key_prefix_with = string
+#           replace_key_with        = string
+#         })
+#       }))
+#     }))
+#     access_key_enabled = bool
+#   }))
+#   default = [ {
+#     bucket_name             = "sf-arc-synthetics-artifacts"
+#     bucket_key_enabled      = false
+#     allowed_bucket_actions  = []
+#     acl                     = "private"
+#     force_destroy           = true
+#     block_public_acls       = true
+#     block_public_policy     = true
+#     ignore_public_acls      = true
+#     restrict_public_buckets = true
+#     versioning_enabled      = false
+#     cors_configuration      = []
+#     lifecycle_configuration_rules = [
+#       {
+#         abort_incomplete_multipart_upload_days = 1
+#         enabled                                = true
+#         expiration = {
+#           days                         = null
+#           expired_object_delete_marker = null
+#         }
+
+#         # filter
+#         filter_and = {}
+#         id         = "delete after 365 days"
+#         noncurrent_version_expiration = {
+#           newer_noncurrent_versions = 1
+#           noncurrent_days           = 1
+#         }
+#         noncurrent_version_transition = []
+#         transition                    = []
+
+#       },
+#     ]
+#     website_configuration = []
+#     access_key_enabled    = true
+#   } ]
+# }
+
+variable "sse_algorithm" {
+  type        = string
+  default     = "aws:kms"
+  description = "The server-side encryption algorithm to use. Valid values are `AES256` and `aws:kms`"
+}

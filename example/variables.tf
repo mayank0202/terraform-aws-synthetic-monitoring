@@ -21,3 +21,8 @@ variable "namespace" {
   description = "Namespace for the resources."
   default     = "arc"
 }
+# variable "artifact_s3_location" {
+#   type        = string
+#   description = "Location in Amazon S3 where Synthetics stores artifacts from the test runs of this canary."
+#   default     = "arc-poc-synthetics-one"
+# }
