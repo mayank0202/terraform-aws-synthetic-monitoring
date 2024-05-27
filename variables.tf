@@ -18,7 +18,7 @@ variable "region" {
 variable "enabled" {
   description = "Whether the KMS module is enabled. If true, a custom KMS key will be used for encryption. If false, the default AWS managed KMS key will be used."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "kms_key_alias" {
@@ -26,14 +26,10 @@ variable "kms_key_alias" {
   type        = string
 }
 
-variable "sns_topic_policy" {
-  description = "The policy to apply to the SNS topic."
-  type        = string
-}
-
 variable "protocol" {
   description = "The protocol for the SNS subscription endpoint."
   type        = string
+  default     = "email"
 }
 
 variable "endpoint" {
@@ -77,7 +73,6 @@ variable "sns_topic_name" {
 variable "canaries_with_vpc" {
   description = "A map of canaries configurations with VPC"
   type        = map(any)
-  default     = {}
 }
 
 # variable "execution_role_arn" {
@@ -100,9 +95,4 @@ variable "security_group_ids" {
 variable "tags" {
   description = "Tags to apply to the canary"
   type        = map(string)
-}
-
-variable "sns_topic_arn" {
-  description = "ARN of the SNS topic to send alarms."
-  type        = string
 }

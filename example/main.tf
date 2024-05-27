@@ -1,17 +1,22 @@
-################################################################################
-## defaults
-################################################################################
-terraform {
-  required_version = "~> 1.3, < 2.0.0"
+module "tags" {
+  source  = "sourcefuse/arc-tags/aws"
+  version = "1.2.3"
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+  environment = var.environment
+  project     = var.project_name
+
+  extra_tags = {
+    MonoRepo     = "True"
+    MonoRepoPath = "terraform/synthetics"
   }
 }
-
-provider "aws" {
-  region = var.region
+module "synthetic-monitoring" {
+  source            = "../"
+  sns_topic_name    = "poc-canary"
+  tags              = module.tags.tags
+  endpoint          = "mayank.sharma@sourcefuse.com"
+  kms_key_alias     = "alias/synthetic-key"
+  canaries_with_vpc = local.canaries_with_vpc
+  # subnet_ids = data.aws_subnets.private.ids
+  # security_group_ids = ["sg-0f2cb737a4e66aca9"]
 }

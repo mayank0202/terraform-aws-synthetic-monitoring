@@ -1,4 +1,4 @@
 output "canary_arns" {
-  description = "ARNs of the created AWS Synthetics canaries"
-  value       = values(aws_synthetics_canary.dynamic_canaries_with_vpc)[*].arn
+  value       = { for idx, canary in aws_synthetics_canary.dynamic_canaries_with_vpc : canary.name => canary.arn }
+  description = "ARNs of all canaries created"
 }
